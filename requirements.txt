@@ -1,0 +1,29 @@
+# =============================================================================
+# SC08 - Machine Predictive Maintenance & Fault Priority System
+# requirements.txt
+#
+# All dependencies are pinned to minor version for reproducibility.
+# Python >= 3.9 required.
+# =============================================================================
+
+# --- Core scientific stack ---
+numpy>=1.24,<2.0           # ANN, Fuzzy, and preprocessing — all hand-coded using NumPy
+pandas>=2.0,<3.0           # CSV loading and tabular data handling
+scikit-learn>=1.3,<2.0     # ONLY used for: train_test_split, metrics (F1, ROC-AUC, confusion matrix)
+                           # NOT used for ANN, Fuzzy, or baseline implementation
+
+# --- Visualisation ---
+matplotlib>=3.7,<4.0       # Membership function plots, learning curves, confusion matrix heatmaps
+
+# --- Web application ---
+streamlit>=1.35,<2.0       # Dashboard UI
+
+# --- Utilities ---
+joblib>=1.3,<2.0           # Parallel computation for evaluation (optional)
+
+# =============================================================================
+# EXPLICITLY NOT INCLUDED:
+#   - tensorflow, pytorch, keras  — ANN is hand-coded with NumPy
+#   - scikit-fuzzy (skfuzzy)      — Fuzzy system is hand-coded with NumPy
+#   - imbalanced-learn            — Class imbalance handled via weighted loss, not SMOTE
+# =============================================================================
