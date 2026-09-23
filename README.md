@@ -234,16 +234,17 @@ SC08-Predictive-Maintenance/
 │   │   ├── ann_learning_curve.svg
 │   │   ├── ann_vs_baseline_metrics.png
 │   │   ├── confusion_matrices.png
-│   │   ├── critical_machine_urgent.png
-│   │   ├── high_ann_risk_high.png
 │   │   ├── hybrid_priority_distribution.png
-│   │   ├── normal_machine_low.png
 │   │   ├── threshold_decision_analysis.png
 │   │   └── validation_threshold_analysis.png
 │   ├── ann_weights.npz
 │   ├── metrics.json
 │   ├── threshold_decision_analysis.json
 │   └── training_history.json
+├── screenshots/
+│   ├── dashboard-normal-low.png
+│   ├── dashboard-high-risk.png
+│   └── dashboard-critical-urgent.png
 ├── src/
 │   ├── __init__.py
 │   ├── ann.py
@@ -318,21 +319,18 @@ python -m src.preprocessing
 
 ---
 
-## 17. Screenshots
+## 17. Stage 1 Dashboard Screenshots
 
-Screenshots demonstrate Stage 1 dashboard implementation evidence:
+The following screenshots provide visual evidence of the working Stage 1 Streamlit dashboard interface evaluating machine risk across operational benchmark scenarios:
 
 ### Normal Machine — LOW
-![Normal Machine — LOW](results/figures/normal_machine_low.png)
+![Normal Machine — LOW](screenshots/dashboard-normal-low.png)
 
 ### High ANN Risk — HIGH
-![High ANN Risk — HIGH](results/figures/high_ann_risk_high.png)
+![High ANN Risk — HIGH](screenshots/dashboard-high-risk.png)
 
 ### Critical Machine — URGENT
-![Critical Machine — URGENT](results/figures/critical_machine_urgent.png)
-
-### Automated Testing Results
-![Automated Testing Results](results/figures/ann_vs_baseline_metrics.png)
+![Critical Machine — URGENT](screenshots/dashboard-critical-urgent.png)
 
 ---
 
