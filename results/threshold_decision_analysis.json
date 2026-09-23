@@ -1,0 +1,153 @@
+{
+  "validation_sample_count": 800,
+  "validation_positive_count": 27,
+  "candidate_threshold_results": [
+    {
+      "threshold": 0.1,
+      "tp": 27,
+      "tn": 431,
+      "fp": 342,
+      "fn": 0,
+      "accuracy": 0.5725,
+      "precision": 0.0732,
+      "recall": 1.0,
+      "specificity": 0.5576,
+      "f1_score": 0.1364
+    },
+    {
+      "threshold": 0.2,
+      "tp": 26,
+      "tn": 527,
+      "fp": 246,
+      "fn": 1,
+      "accuracy": 0.6913,
+      "precision": 0.0956,
+      "recall": 0.963,
+      "specificity": 0.6818,
+      "f1_score": 0.1739
+    },
+    {
+      "threshold": 0.3,
+      "tp": 26,
+      "tn": 602,
+      "fp": 171,
+      "fn": 1,
+      "accuracy": 0.785,
+      "precision": 0.132,
+      "recall": 0.963,
+      "specificity": 0.7788,
+      "f1_score": 0.2321
+    },
+    {
+      "threshold": 0.4,
+      "tp": 25,
+      "tn": 649,
+      "fp": 124,
+      "fn": 2,
+      "accuracy": 0.8425,
+      "precision": 0.1678,
+      "recall": 0.9259,
+      "specificity": 0.8396,
+      "f1_score": 0.2841
+    },
+    {
+      "threshold": 0.5,
+      "tp": 24,
+      "tn": 683,
+      "fp": 90,
+      "fn": 3,
+      "accuracy": 0.8838,
+      "precision": 0.2105,
+      "recall": 0.8889,
+      "specificity": 0.8836,
+      "f1_score": 0.3404
+    },
+    {
+      "threshold": 0.6,
+      "tp": 23,
+      "tn": 709,
+      "fp": 64,
+      "fn": 4,
+      "accuracy": 0.915,
+      "precision": 0.2644,
+      "recall": 0.8519,
+      "specificity": 0.9172,
+      "f1_score": 0.4035
+    },
+    {
+      "threshold": 0.7,
+      "tp": 22,
+      "tn": 735,
+      "fp": 38,
+      "fn": 5,
+      "accuracy": 0.9463,
+      "precision": 0.3667,
+      "recall": 0.8148,
+      "specificity": 0.9508,
+      "f1_score": 0.5057
+    },
+    {
+      "threshold": 0.8,
+      "tp": 19,
+      "tn": 748,
+      "fp": 25,
+      "fn": 8,
+      "accuracy": 0.9587,
+      "precision": 0.4318,
+      "recall": 0.7037,
+      "specificity": 0.9677,
+      "f1_score": 0.5352
+    },
+    {
+      "threshold": 0.9,
+      "tp": 18,
+      "tn": 760,
+      "fp": 13,
+      "fn": 9,
+      "accuracy": 0.9725,
+      "precision": 0.5806,
+      "recall": 0.6667,
+      "specificity": 0.9832,
+      "f1_score": 0.6207
+    }
+  ],
+  "key_operating_points": {
+    "highest_recall": {
+      "threshold": 0.1,
+      "recall": 1.0,
+      "precision": 0.0732,
+      "f1_score": 0.1364,
+      "fn": 0,
+      "fp": 342
+    },
+    "highest_precision": {
+      "threshold": 0.9,
+      "precision": 0.5806,
+      "recall": 0.6667,
+      "f1_score": 0.6207,
+      "fn": 9,
+      "fp": 13
+    },
+    "maximum_f1": {
+      "threshold": 0.9,
+      "f1_score": 0.6207,
+      "precision": 0.5806,
+      "recall": 0.6667,
+      "fn": 9,
+      "fp": 13
+    },
+    "current_default": {
+      "threshold": 0.5,
+      "f1_score": 0.3404,
+      "precision": 0.2105,
+      "recall": 0.8889,
+      "fn": 3,
+      "fp": 90
+    }
+  },
+  "tradeoff_analysis": {
+    "operational_tradeoff": "The relative cost of false negatives and false positives depends on the actual maintenance environment. Threshold selection should therefore be based on the operational requirements of the target system.",
+    "maximum_f1_note": "Threshold 0.90 produced the highest F1-score (0.6207) among the tested thresholds on this 800-sample validation set. This threshold is specific to this validation split and is not claimed to be universally optimal.",
+    "recommended_strategy": "The current default threshold of tau = 0.50 is maintained for system evaluation. Any future threshold adjustment should be decided by project stakeholders based on specific plant operational requirements."
+  }
+}
