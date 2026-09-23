@@ -1,278 +1,373 @@
 # SC08 — Machine Predictive Maintenance & Fault Priority System
 
-A university Soft Computing capstone project that combines a hand-coded **Artificial Neural Network (ANN)** and a hand-coded **Mamdani Fuzzy Logic system** to evaluate machine failure probability, reason about fault severity, assign maintenance priorities, and provide actionable maintenance recommendations.
+## 1. Project Overview
+
+This project implements an end-to-end data-driven machine predictive maintenance system developed for a university Soft Computing course (Project Code: SC08). The system processes raw machine operating parameters, evaluates failure risk using a hand-coded Artificial Neural Network (ANN), and reasons about physical degradation parameters using a hand-coded Mamdani Fuzzy Logic inference engine to compute a continuous Severity Index and assign actionable Maintenance Priorities (`LOW`, `MEDIUM`, `HIGH`, `URGENT`).
+
+### Purpose of Combining ANN + Fuzzy Logic
+
+- **ANN Strengths & Limitations:** The Artificial Neural Network excels at learning complex, non-linear relationships across multi-dimensional sensor data to estimate a continuous failure probability $P(\text{Failure}) \in [0, 1]$. However, raw probabilities lack operational context and domain-level explainability.
+- **Fuzzy Logic Role:** The Mamdani Fuzzy Logic system incorporates domain rules and physical degradation indicators (such as tool wear and spindle torque) alongside the ANN probability score. This converts quantitative probability outputs into transparent, risk-aware severity scores, human-interpretable rule activations, and operational maintenance priorities.
 
 ---
 
-## Problem Statement
+## 2. Problem Statement
 
-Modern industrial manufacturing relies heavily on continuous equipment operation. Unscheduled equipment breakdowns lead to costly unplanned downtime, expensive secondary machine damage, lost production capacity, and severe operational hazards. Traditional schedule-based maintenance often leads to unnecessary over-servicing of healthy machinery or fails to catch sudden, unexpected failures.
+Traditional industrial maintenance strategies typically depend on fixed time-based schedules (preventive maintenance) or waiting until component failure occurs (breakdown maintenance). Fixed schedules can lead to unnecessary servicing of operational machinery and higher maintenance overhead, while breakdown maintenance results in unplanned downtime, production loss, and catastrophic failure risks.
 
-However, developing effective automated maintenance systems presents key challenges:
-- **Limitations of Raw Sensor Signals & Binary Flags:** Standard binary classification models output a raw failure probability (e.g., 0.72), but plant operators cannot translate a single probability score directly into prioritized operational actions. Furthermore, sensor data is noisy, failure events are rare (severe class imbalance), and binary labels cannot express failure severity or distinguish between minor component wear and imminent catastrophic breakdown.
-- **Why ANN + Fuzzy Logic Hybrid:** Artificial Neural Networks excel at learning complex, non-linear relationships from multi-sensor data to predict failure probability. However, ANNs act as black-box estimators and lack transparent decision reasoning. Fuzzy Logic bridges this gap by incorporating domain knowledge and expert reasoning using continuous linguistic rules (e.g., *IF Failure Probability is High AND Tool Wear is Extreme, THEN Severity is Critical*).
-- **End-to-End Decision Support:** The final hybrid system processes raw machine sensor readings, computes failure probability via the hand-coded ANN, evaluates operational severity via the Mamdani Fuzzy Inference System, maps severity to discrete Maintenance Priorities (*URGENT*, *HIGH*, *MEDIUM*, *LOW*), and generates specific, actionable maintenance recommendations.
+This project demonstrates a data-driven system that estimates machine failure risk and converts predictions into interpretable, risk-aware maintenance priorities to support operational decision-making.
 
 ---
 
-## Objectives
+## 3. Project Objectives
 
-- **Predict Machine Failure Probability:** Develop and train a hand-coded Artificial Neural Network (NumPy only) to estimate machine failure probability from operational sensor readings.
-- **Handle Class Imbalance:** Implement class-weighted Binary Cross-Entropy (BCE) loss to handle rare machine failure cases (~3.4% positive rate) without synthetic data generation.
-- **Implement Multi-Factor Severity Reasoning:** Design a hand-coded Mamdani Fuzzy Inference System (NumPy only) to evaluate fault severity based on failure probability and operational stress inputs.
-- **Generate Maintenance Priorities & Recommendations:** Map continuous fuzzy severity indices to operational maintenance priority levels and clear maintenance actions.
-- **Compare Against Baseline:** Compare model behavior against a documented-rule crisp reference baseline.
-- **Rigorous Test Evaluation:** Evaluate model generalization and prediction performance on unseen held-out test data.
-- **Interactive User Interface:** Provide a clean, user-friendly Streamlit dashboard interface for real-time risk assessment and decision support.
+- Predict machine failure probability from operational parameters.
+- Use machine operating parameters as model inputs.
+- Implement an Artificial Neural Network from scratch using NumPy.
+- Implement a Mamdani Fuzzy Logic system from scratch using NumPy.
+- Produce an interpretable severity score ($0\text{--}100$).
+- Convert severity into discrete `LOW`, `MEDIUM`, `HIGH`, and `URGENT` priority levels.
+- Provide contextual maintenance recommendations based on rule firing.
+- Demonstrate the complete decision pipeline through an interactive Streamlit dashboard.
 
 ---
 
-## Project Overview
+## 4. Dataset
 
-| Item | Detail |
-|---|---|
-| **Course** | Soft Computing |
-| **Project Code** | SC08 |
-| **Dataset** | AI4I 2020 Predictive Maintenance Dataset (UCI ML Repository) |
-| **Dataset License** | Creative Commons Attribution 4.0 International (CC BY 4.0) |
-| **Python Version** | ≥ 3.9 |
+The project utilizes the **UCI AI4I 2020 Predictive Maintenance Dataset** (UCI Repository ID 601).
 
-### System Pipeline
+- **Total Records:** 10,000 synthetic operational records reflecting real milling machine operation.
+- **Target Variable:** `Machine failure` (binary label: $0 = \text{healthy}$, $1 = \text{failure}$).
+- **Class Imbalance:** Highly imbalanced failure rate (~3.39% positive class across the dataset).
+- **Sub-failure Modes:** The dataset includes 5 individual failure mode columns (`TWF`, `HDF`, `PWF`, `OSF`, `RNF`), which represent component breakdowns but are excluded from ANN training to prevent data leakage.
+- **Dataset Property Note:** The AI4I 2020 dataset does **not** contain a vibration sensor. Spindle load is represented by `Torque [Nm]`.
+
+---
+
+## 5. Input Features
+
+### ANN Input Features (7 Features)
+
+The ANN processes seven preprocessed input features in exact canonical order:
+
+1. `Air temperature [K]`
+2. `Process temperature [K]`
+3. `Rotational speed [rpm]`
+4. `Torque [Nm]`
+5. `Tool wear [min]`
+6. `Type_M` (One-hot encoded flag for Medium quality variant)
+7. `Type_H` (One-hot encoded flag for High quality variant)
+
+*(Note: Product Type `L` serves as the reference category when `Type_M = 0` and `Type_H = 0`)*
+
+### Dashboard Machine Parameters
+
+The Streamlit user interface collects six raw operational parameters from the user:
+
+- **Product Type:** Quality variant selector (`L`, `M`, or `H`)
+- **Air Temperature:** Ambient operating temperature in Kelvin [K]
+- **Process Temperature:** Machine operational temperature in Kelvin [K]
+- **Rotational Speed:** Spindle speed in revolutions per minute [rpm]
+- **Torque:** Spindle torque in Newton-metres [Nm]
+- **Tool Wear:** Cumulative tool operating time in minutes [min]
+
+---
+
+## 6. System Architecture
+
+The project pipeline executes sequentially from raw input parameters to priority assignment:
 
 ```
-Machine sensor readings
+Machine Sensor Data
         ↓
-Input validation
+Preprocessing
         ↓
-Data preprocessing / normalization
+Min-Max Normalisation
         ↓
-ANN (NumPy)
+ANN
+7 → 16 → 8 → 1
         ↓
-Fault probability [0,1]
+Failure Probability
         ↓
-Mamdani Fuzzy Logic (NumPy)
+Mamdani Fuzzy Logic
         ↓
-Severity Index [0,100]
+Defuzzification
+Centre of Gravity
+        ↓
+Severity Index (0–100)
         ↓
 Maintenance Priority
-        ↓
-Maintenance Recommendation
-        ↓
-Streamlit Dashboard
+LOW / MEDIUM / HIGH / URGENT
 ```
 
-### Approaches Compared
+---
 
-| Approach | Description |
-|---|---|
-| **Documented-rule crisp reference baseline** | Encodes the published AI4I failure-generation rules (Matzka, 2020). Serves as a deterministic, crisp reference rule set — **not** an independent industrial benchmark. |
-| **ANN only** | Hand-coded NumPy neural network trained on normalized sensor features to output raw failure probability. |
-| **ANN + Fuzzy hybrid** | Hybrid architecture combining ANN failure probability with Mamdani Fuzzy Logic inferencing to compute severity indices, maintenance priorities, and maintenance recommendations. |
+## 7. Artificial Neural Network
+
+- **Implementation:** Built entirely from scratch using **NumPy** (without PyTorch, TensorFlow, Keras, or scikit-learn neural network modules).
+- **Architecture ($7 \rightarrow 16 \rightarrow 8 \rightarrow 1$):**
+  - **Input Layer:** 7 features (scaled numeric features + one-hot product types).
+  - **Hidden Layer 1:** 16 hidden units with ReLU activation ($f(z) = \max(0, z)$).
+  - **Hidden Layer 2:** 8 hidden units with ReLU activation.
+  - **Output Layer:** 1 output unit with Sigmoid activation ($\sigma(z) = \frac{1}{1 + e^{-z}}$), returning $P(\text{Failure}) \in [0, 1]$.
+- **Weight Initialization:** He (Kaiming) normal initialization for ReLU layers; Glorot/Xavier normal initialization for the Sigmoid output layer.
+- **Loss Function:** Class-weighted Binary Cross-Entropy (BCE) loss ($w_{\text{pos}} \approx 28.52$) to penalize missed positive failure instances without artificial oversampling.
+- **Training & Validation Protocol:**
+  - 80/20 stratified split into training (8,000 samples) and test (2,000 samples) sets.
+  - Training set further split 90/10 for validation (7,200 train / 800 val).
+  - Optimized via mini-batch Stochastic Gradient Descent (SGD) with early stopping (patience = 15 epochs based on validation loss).
+  - The 2,000-sample test set remained strictly untouched until final evaluation.
 
 ---
 
-## Methodology
+## 8. Fuzzy Logic System
 
-### A. Data Preprocessing
-- **Validation & Cleaning:** Verification of dataset integrity, feature data types, and absence of missing values. Identifier attributes (`UDI`, `Product ID`) are removed.
-- **Categorical Encoding:** One-hot encoding of machine product type (`Type` L/M/H) into `Type_M` and `Type_H`, using `Type_L` as the implicit reference category to prevent multicollinearity.
-- **Stratified Train/Test Split:** 80/20 stratified split implemented in pure NumPy to preserve the ~3.4% failure class distribution across training and test sets.
-- **Min-Max Normalization:** Numeric features are scaled to $[0, 1]$ using minimum and maximum bounds computed strictly from training data to avoid data leakage.
-- **Class Weighting:** Positive class weight $w_{\text{pos}} = N_{\text{neg}} / N_{\text{pos}}$ calculated from training labels for weighted loss computation.
-
-### B. Artificial Neural Network (ANN)
-- **Implementation:** Fully connected multi-layer perceptron built entirely from scratch using **NumPy**.
-- **Loss Function:** Class-weighted Binary Cross-Entropy (BCE) loss to penalize false negatives on rare failure instances.
-- **Optimization & Activation:** Forward pass with ReLU activation for hidden layers and Sigmoid activation for the output layer, optimized via backpropagation and gradient descent.
-
-### C. Fuzzy Logic System
-- **Implementation:** Hand-coded Mamdani Fuzzy Inference System built entirely with **NumPy**.
-- **Fuzzification:** Triangular and trapezoidal membership functions convert crisp ANN failure probability and operational stress inputs into linguistic variables.
-- **Inference Engine:** Rule base applying min-max composition (Mamdani implication) to evaluate rule antecedents and aggregate fuzzy output sets.
-- **Defuzzification:** Center of Gravity (CoG) method converts aggregated fuzzy output distributions into a continuous Severity Index $S \in [0, 100]$.
-
-### D. Hybrid Prediction Pipeline
-- Integrates the trained ANN probability output into the Mamdani Fuzzy Inference System to derive a combined risk score, assign operational priority categories (*LOW*, *MEDIUM*, *HIGH*, *URGENT*), and generate specific maintenance recommendations.
-
-### E. Evaluation Framework
-- Methodological protocol designed to compare the baseline, ANN-only, and hybrid models on held-out test data across standard metrics (F1 score, Precision, Recall, ROC-AUC, confusion matrices) and edge-case operational scenarios.
+- **Implementation:** Hand-coded Mamdani Fuzzy Inference System built using **NumPy** (without `scikit-fuzzy`).
+- **Input Variables (3 Inputs):**
+  1. `ANN Fault Probability` (`fault_prob` $\in [0.0, 1.0]$): MFs = `LOW`, `MEDIUM`, `HIGH`
+  2. `Tool Wear` (`tool_wear` $\in [0, 260]$ min): MFs = `LOW`, `MEDIUM`, `HIGH`
+  3. `Torque` (`torque` $\in [0, 80]$ Nm): MFs = `LOW`, `MEDIUM`, `HIGH`
+- **Output Variable (1 Output):**
+  - `Severity Index` ($\in [0, 100]$): MFs = `LOW`, `MEDIUM`, `HIGH`
+- **Membership Functions:** Triangular and trapezoidal shapes evaluated across a 1,000-point discrete universe vector.
+- **Fuzzy Rule Base (11 Rules):**
+  - **Primary Rules (R1–R9):** $3 \times 3$ decision matrix crossing ANN Fault Probability and Tool Wear.
+  - **Supplementary Torque Rules (R10–R11):** Account for heavy spindle torque amplifying failure risk.
+- **Inference & Defuzzification:**
+  - Mamdani inference engine (min for AND antecedent evaluation, max for rule aggregation).
+  - Centre of Gravity (CoG / Centroid) defuzzification method over 1,000 discrete points.
+- **Maintenance Priority Thresholds:**
+  - `LOW`: Severity Index $< 33.0$ (routine monitoring)
+  - `MEDIUM`: $33.0 \le$ Severity Index $< 60.0$ (plan maintenance soon)
+  - `HIGH`: $60.0 \le$ Severity Index $< 78.0$ (schedule maintenance within 24 hours)
+  - `URGENT`: Severity Index $\ge 78.0$ (stop machine immediately)
 
 ---
 
-## Dataset
+## 9. Decision Pipeline
 
-The project utilizes the **AI4I 2020 Predictive Maintenance Dataset**, sourced from the UCI Machine Learning Repository.
+### Behavioral Example
 
-- **Source:** UCI Machine Learning Repository (Dataset ID 601)
-- **Volume:** 10,000 total records
-- **Class Distribution:** 339 machine failure events (~3.4% failure rate)
-- **License:** Creative Commons Attribution 4.0 International (CC BY 4.0)
-- **Citation:** Matzka, S. (2020)
+Consider a machine producing a high ANN failure probability ($P(\text{Failure}) = 98.83\%$). If physical indicators such as tool wear ($50\text{ min}$) and torque ($65\text{ Nm}$) are also elevated, fuzzy rules R7 and R10 trigger, resulting in a defuzzified Severity Index of $68.89/100$ and assigning a **HIGH** maintenance priority. If physical tool wear is also critical ($235\text{ min}$), rule R9 triggers to escalate the output to an **URGENT** priority ($84.47/100$).
 
-> **Important Dataset Note:**
-> The AI4I 2020 dataset does not contain a vibration sensor. The project therefore uses the available documented variables without renaming Torque as vibration.
+*Note: This demonstrates system decision-making behavior under compounding risk conditions. A high ANN probability alone does not automatically guarantee an URGENT priority; if physical tool wear and torque are low, the fuzzy system adjusts the severity downward (e.g. to a MEDIUM level via Rule R7).*
 
 ---
 
-## Current Status
+## 10. Streamlit Dashboard
 
-- [x] Project scaffold
-- [x] Dataset acquisition/documentation
-- [x] Data preprocessing
-- [x] Train/validation/test split
-- [x] Class-weighted loss implementation
-- [x] Hand-coded NumPy ANN
-- [x] ANN training and saved weights
-- [x] Hand-coded NumPy Fuzzy Logic
-- [x] Baseline implementation
-- [x] Hybrid prediction pipeline
-- [ ] Final evaluation
-- [ ] Edge-case experiments
-- [ ] Streamlit dashboard
-- [ ] Public deployment
-- [ ] Final report
+The project includes an interactive web dashboard built with Streamlit (`app/app.py`):
+
+- **Machine Parameter Inputs:** Sidebar controls to specify Product Type, Air Temperature, Process Temperature, Rotational Speed, Torque, and Tool Wear.
+- **Preset Test Scenarios:** Pre-loaded operational test scenarios for quick evaluation.
+- **Real-Time Pipeline Execution:** Displays ANN Fault Probability ($P(\text{Failure}) \%$).
+- **Severity & Priority Indicators:** Displays the Fuzzy Severity Index ($0\text{--}100$), a progress visualization bar, and a color-coded priority badge (`LOW`, `MEDIUM`, `HIGH`, `URGENT`).
+- **Recommended Maintenance Action:** Context-aware operational recommendations.
+- **Fuzzy Explainability:** Detailed view of fired fuzzy rules, individual rule activation strengths, and human-readable reasoning.
+- **System Architecture Guide:** Informational modal explaining the hybrid decision process.
+- **Execution:** Runs locally via Streamlit.
 
 ---
 
-## Repository Structure
+## 11. Verified Benchmark Scenarios
+
+The system has been evaluated against verified benchmark scenarios:
+
+| Scenario | ANN Fault Probability | Severity Index | Priority |
+|---|---:|---:|---|
+| Normal Machine | 2.16% | 15.53/100 | LOW |
+| High ANN Risk | 98.83% | 68.89/100 | HIGH |
+| Critical Machine | 99.82% | 84.47/100 | URGENT |
+
+The repository contains five built-in benchmark test scenarios (`run_pipeline_tests()` in `src/prediction.py`), and the automated verification reported:
+
+`ALL 5 SCENARIO TESTS PASSED`
+
+---
+
+## 12. Threshold Analysis
+
+A decision threshold analysis was conducted on the 800-sample validation set while the 2,000-sample test set remained untouched:
+
+- **Default Threshold:** The system maintains a default decision threshold of $\tau = 0.50$.
+- **Validation Observations:** Candidate threshold evaluation ($0.10$ to $0.90$) showed that $\tau = 0.90$ achieved the highest $F_1$-score ($0.6207$, Precision: $0.5806$, Recall: $0.6667$) on the validation split.
+- **Scope Note:** This observation is split-specific and is **not** claimed to be universally optimal.
+- **Operational Trade-off:** Optimal threshold selection in industrial deployment depends on plant-specific costs balancing false alarms against undetected machine breakdowns.
+
+---
+
+## 13. Testing & Validation
+
+Testing and verification scripts included in the repository:
+
+- `python -m src.prediction`: Runs 5 end-to-end operational pipeline scenario tests.
+- `python -m src.evaluation`: Evaluates ANN, Baseline logistic regression, and Hybrid Fuzzy pipeline metrics on the 2,000-sample test set (`results/metrics.json`).
+- `python -m src.threshold_decision`: Performs threshold grid analysis across validation samples (`results/threshold_decision_analysis.json`).
+
+### Verified Test Set Metrics (2,000 Samples)
+
+- **ANN ROC-AUC:** `0.9581`
+- **ANN Recall at $\tau=0.50$:** `0.9118` (62 of 68 true failure instances detected)
+- **Baseline ROC-AUC:** `0.9281`
+- **Scenario Tests:** All 5 pipeline test assertions passed successfully. No claims of "100% accuracy" are made.
+
+---
+
+## 14. Project Structure
 
 ```
 SC08-Predictive-Maintenance/
-│
-├── app/                        ← Streamlit dashboard directory (dashboard pending implementation)
-│
+├── app/
+│   └── app.py
+├── data/
+│   ├── ai4i2020.csv
+│   ├── README.md
+│   └── processed/
+│       ├── norm_params.json
+│       ├── X_test.npy
+│       ├── X_train.npy
+│       ├── y_test.npy
+│       └── y_train.npy
+├── report/
+├── results/
+│   ├── figures/
+│   │   ├── ann_learning_curve.svg
+│   │   ├── ann_vs_baseline_metrics.png
+│   │   ├── confusion_matrices.png
+│   │   ├── critical_machine_urgent.png
+│   │   ├── high_ann_risk_high.png
+│   │   ├── hybrid_priority_distribution.png
+│   │   ├── normal_machine_low.png
+│   │   ├── threshold_decision_analysis.png
+│   │   └── validation_threshold_analysis.png
+│   ├── ann_weights.npz
+│   ├── metrics.json
+│   ├── threshold_decision_analysis.json
+│   └── training_history.json
 ├── src/
 │   ├── __init__.py
-│   ├── preprocessing.py        ← Data loading, encoding, normalization, and NumPy stratified split
-│   ├── ann.py                  ← Hand-coded ANN implementation (NumPy only)
-│   ├── fuzzy.py                ← Hand-coded Mamdani Fuzzy Logic system (NumPy only)
-│   ├── baseline.py             ← Documented-rule crisp reference baseline
-│   └── prediction.py           ← Full hybrid prediction pipeline
-│
-├── data/
-│   ├── ai4i2020.csv            ← Raw dataset (10,000 records)
-│   ├── README.md               ← Full dataset citation, license, and limitations
-│   └── processed/              ← Pre-processed NumPy arrays (generated)
-│       ├── X_train.npy
-│       ├── X_test.npy
-│       ├── y_train.npy
-│       ├── y_test.npy
-│       └── norm_params.json
-│
-├── results/
-│   ├── ann_weights.npz         ← Saved trained ANN weights
-│   ├── training_history.json   ← Training loss and history
-│   └── figures/                ← Saved plots
-│       └── ann_learning_curve.svg
-│
-├── report/                     ← Project report directory (pending final report)
-├── requirements.txt            ← Project dependencies
-├── README.md                   ← Project documentation
-└── .gitignore                  ← Git ignore configuration
+│   ├── ann.py
+│   ├── baseline.py
+│   ├── evaluation.py
+│   ├── fuzzy.py
+│   ├── prediction.py
+│   ├── preprocessing.py
+│   ├── threshold_analysis.py
+│   └── threshold_decision.py
+├── .gitignore
+├── README.md
+└── requirements.txt
 ```
 
 ---
 
-## Setup Instructions
+## 15. Installation
 
-### 1. Clone the repository
+### 1. Clone Repository & Navigate
 
 ```bash
-git clone https://github.com/mishra009shivam/Machine-Predictive-Maintenance-system.git
+git clone <repository-url>
 cd SC08-Predictive-Maintenance
 ```
 
-### 2. Create and activate a virtual environment
+### 2. Create & Activate Virtual Environment
 
-```bash
-python -m venv venv
-
-# Windows
-venv\Scripts\activate
-
-# macOS / Linux
-source venv/bin/activate
+**Windows:**
+```powershell
+python -m venv .venv
+.venv\Scripts\activate
 ```
 
-### 3. Install dependencies
+**Linux / macOS:**
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Dataset verification
+---
 
-The raw dataset is stored in `data/ai4i2020.csv`. If re-downloading is required:
-1. Visit: https://archive.ics.uci.edu/dataset/601/ai4i+2020+predictive+maintenance+dataset
-2. Download and place `ai4i2020.csv` in `data/`.
+## 16. Running the Project
 
-### 5. Run preprocessing
+### Launch Streamlit Dashboard
 
 ```bash
+streamlit run app/app.py
+```
+
+### Run Automated Pipeline & Verification Tests
+
+```bash
+# Run 5 end-to-end scenario tests
+python -m src.prediction
+
+# Run test set evaluation (ANN, Baseline, Hybrid Fuzzy)
+python -m src.evaluation
+
+# Run threshold decision analysis on validation set
+python -m src.threshold_decision
+
+# Run data preprocessing pipeline
 python -m src.preprocessing
 ```
 
-This generates normalized train/test arrays and `norm_params.json` in `data/processed/`.
+---
 
-### 6. Train the ANN
+## 17. Screenshots
 
-```bash
-python -m src.ann --train
-```
+Screenshots demonstrate Stage 1 dashboard implementation evidence:
 
-Saves `results/ann_weights.npz` and `results/training_history.json`.
+### Normal Machine — LOW
+![Normal Machine — LOW](results/figures/normal_machine_low.png)
+
+### High ANN Risk — HIGH
+![High ANN Risk — HIGH](results/figures/high_ann_risk_high.png)
+
+### Critical Machine — URGENT
+![Critical Machine — URGENT](results/figures/critical_machine_urgent.png)
+
+### Automated Testing Results
+![Automated Testing Results](results/figures/ann_vs_baseline_metrics.png)
 
 ---
 
-## Implementation Notes
+## 18. Limitations
 
-- **NumPy-Only ANN & Fuzzy Mathematics:** Both the Artificial Neural Network and Mamdani Fuzzy Inference System are built entirely using **NumPy** without deep learning frameworks (TensorFlow, PyTorch, Keras) or fuzzy libraries (scikit-fuzzy).
-- **Pure NumPy Preprocessing:** Preprocessing functions, including Min-Max normalization, one-hot encoding, and 80/20 stratified train/test split, are implemented directly using **NumPy** and **pandas**.
-- **Role of Dependencies:** `scikit-learn` is included in `requirements.txt` for standardized evaluation metric computation (F1 score, ROC-AUC, confusion matrix), but is not used in core model math or preprocessing routines.
-- **Handling Imbalance:** Class imbalance (~3.4% failure rate) is handled strictly via **class-weighted binary cross-entropy loss**, avoiding synthetic sampling techniques like SMOTE.
-- **Sensor Domain Accuracy:** The dataset contains no vibration measurements; Torque [Nm] is processed as documented and is not converted or renamed.
-
----
-
-## Limitations
-
-- **Lack of Vibration Data:** The AI4I 2020 dataset does not contain vibration sensor readings, which are typically critical in industrial mechanical fault diagnostics.
-- **Synthetic Data Source:** The dataset is synthetically constructed based on physical models, which may not capture all random, unmodeled environmental dynamics of real manufacturing facilities.
-- **Crisp Baseline Nature:** The documented-rule crisp reference baseline encodes the exact mathematical formulas used to generate failures in the dataset; it functions as a reference check rather than an external industrial benchmark.
-- **Fuzzy Membership & Threshold Assumptions:** Fuzzy membership bounds, rule weights, and severity priority thresholds represent academic design choices rather than validated industrial standards.
+- Model evaluation and validation results depend on the selected train/validation split and historical dataset distribution.
+- Decision threshold selection depends on plant-specific maintenance cost structures and operational requirements.
+- The project is a university prototype system developed for academic evaluation.
+- Industrial deployment would require additional testing, hardware integration, and validation within an active plant environment.
 
 ---
 
-## Future Work
+## 19. Future Scope
 
-- **Integration of Physical Vibration Signals:** Incorporating real multi-axis vibration data streams to enhance fault diagnostic capabilities.
-- **Validation on Real Industrial Datasets:** Testing and evaluating the hybrid framework on operational data from real-world manufacturing plants.
-- **Advanced Model Calibration:** Exploring probability calibration techniques to improve risk estimation under extreme class imbalance.
-- **Automated Parameter Optimization:** Implementing Neuro-Fuzzy (ANFIS) or Genetic Algorithms to optimize membership function shapes and rule weights automatically.
-- **Real-Time Sensor Integration & UI Deployment:** Developing real-time streaming interfaces and deploying the Streamlit application for live operational decision support.
-
----
-
-## Citation
-
-```bibtex
-@inproceedings{matzka2020explainable,
-  title={Explainable Artificial Intelligence for Predictive Maintenance Applications},
-  author={Matzka, Stephan},
-  booktitle={Third International Conference on Artificial Intelligence for Industries (AI4I)},
-  year={2020},
-  publisher={IEEE}
-}
-```
-
-- **Dataset:** UCI Machine Learning Repository, ID 601.  
-- **URL:** https://archive.ics.uci.edu/dataset/601/ai4i+2020+predictive+maintenance+dataset  
-- **License:** Creative Commons Attribution 4.0 International (CC BY 4.0)
+- Integration of larger, multi-machine real-world industrial sensor datasets.
+- Extended evaluation across additional failure modes and machinery types.
+- Exploration of hyperparameter tuning and model optimization algorithms.
+- Deployment to cloud or edge computing infrastructure.
+- Real-time stream integration with industrial IoT sensors and SCADA systems.
 
 ---
 
-## Reproducibility
+## 20. Technologies Used
 
-- **Random Generator Seeding:** Stochastic operations (stratified data splitting in `src/preprocessing.py`, ANN weight initialization, validation splitting, and mini-batch shuffling in `src/ann.py`) instantiate explicit NumPy generator instances using `np.random.default_rng(seed=42)`.
-- **Explicit Hyperparameters:** Neural network architecture dimensions (7-16-8-1), learning rates, loss weights, and fuzzy membership sets are explicitly defined in `src/ann.py` and `src/fuzzy.py`.
-- **Execution Consistency:** Re-running preprocessing and training routines within the same Python/NumPy environment reproduces generated dataset splits, trained model weights, and history loss curves.
+- **Python ($\ge 3.9$):** Primary programming language.
+- **NumPy ($1.24 \le \text{version} < 2.0$):** Hand-coded ANN linear algebra, Mamdani Fuzzy logic inferencing, defuzzification, and matrix operations.
+- **Pandas ($2.0 \le \text{version} < 3.0$):** Data manipulation and CSV loading.
+- **Matplotlib ($3.7 \le \text{version} < 4.0$):** Performance curve plotting and confusion matrix visualization.
+- **Streamlit ($1.35 \le \text{version} < 2.0$):** Web dashboard user interface.
+- **Git / GitHub:** Version control and source code repository.
+
+---
+
+## 21. Academic Context
+
+- **Course:** Soft Computing
+- **Project Code:** SC08
+- **Purpose:** University Project / Stage 1 Documentation
