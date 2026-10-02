@@ -154,8 +154,8 @@ The dataset file `ai4i2020.csv` must be downloaded separately:
 
 1. Visit: https://archive.ics.uci.edu/dataset/601/ai4i+2020+predictive+maintenance+dataset
 2. Click the **Download** button (509.8 KB zip file)
-3. Extract the zip and move `ai4i2020.csv` to this `data/` directory
-4. Run `python -m src.preprocessing` to generate the processed arrays
+3. Extract the zip and move `ai4i2020.csv` to `data/raw/` directory
+4. Run `python -m src.prepare_data` to generate the processed arrays
 
 Alternatively, using the UCI Python package:
 
@@ -163,5 +163,5 @@ Alternatively, using the UCI Python package:
 from ucimlrepo import fetch_ucirepo
 dataset = fetch_ucirepo(id=601)
 df = dataset.data.features.join(dataset.data.targets)
-df.to_csv("data/ai4i2020.csv", index=False)
+df.to_csv("data/raw/ai4i2020.csv", index=False)
 ```

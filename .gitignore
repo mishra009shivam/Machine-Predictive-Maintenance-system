@@ -22,6 +22,7 @@ venv.bak/
 # --- Jupyter ---
 .ipynb_checkpoints/
 *.ipynb
+!notebooks/01_data_preparation.ipynb
 
 # --- Distribution / packaging ---
 dist/

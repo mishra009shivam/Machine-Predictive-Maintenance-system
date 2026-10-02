@@ -65,7 +65,7 @@ import pandas as pd
 # Constants
 # ==============================================================================
 
-RAW_CSV = os.path.join("data", "ai4i2020.csv")
+RAW_CSV = os.path.join("data", "raw", "ai4i2020.csv")
 PROCESSED_DIR = os.path.join("data", "processed")
 
 # Columns that are pure row identifiers and carry no predictive signal.
@@ -130,12 +130,16 @@ def load_and_verify(path: str) -> pd.DataFrame:
     - Target column 'Machine failure' is present
     """
     if not os.path.exists(path):
-        raise FileNotFoundError(
-            f"Raw dataset not found at '{path}'.\n"
-            "Download from:\n"
-            "  https://archive.ics.uci.edu/dataset/601/ai4i+2020+predictive+maintenance+dataset\n"
-            "or run the download snippet in data/README.md"
-        )
+        fallback_path = os.path.join("data", "ai4i2020.csv")
+        if os.path.exists(fallback_path):
+            path = fallback_path
+        else:
+            raise FileNotFoundError(
+                f"Raw dataset not found at '{path}' or '{fallback_path}'.\n"
+                "Download from:\n"
+                "  https://archive.ics.uci.edu/dataset/601/ai4i+2020+predictive+maintenance+dataset\n"
+                "or run the download snippet in data/README.md"
+            )
 
     df = pd.read_csv(path)
 

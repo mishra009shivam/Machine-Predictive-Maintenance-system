@@ -220,14 +220,20 @@ SC08-Predictive-Maintenance/
 ├── app/
 │   └── app.py
 ├── data/
-│   ├── ai4i2020.csv
-│   ├── README.md
-│   └── processed/
-│       ├── norm_params.json
-│       ├── X_test.npy
-│       ├── X_train.npy
-│       ├── y_test.npy
-│       └── y_train.npy
+│   ├── raw/
+│   │   └── ai4i2020.csv
+│   ├── processed/
+│   │   ├── norm_params.json
+│   │   ├── X_test.npy
+│   │   ├── X_train.npy
+│   │   ├── y_test.npy
+│   │   └── y_train.npy
+│   ├── reports/
+│   │   ├── data_quality_report.md
+│   │   └── scenario_categories.md
+│   └── README.md
+├── notebooks/
+│   └── 01_data_preparation.ipynb
 ├── report/
 ├── results/
 │   ├── figures/
@@ -252,6 +258,7 @@ SC08-Predictive-Maintenance/
 │   ├── evaluation.py
 │   ├── fuzzy.py
 │   ├── prediction.py
+│   ├── prepare_data.py
 │   ├── preprocessing.py
 │   ├── threshold_analysis.py
 │   └── threshold_decision.py
