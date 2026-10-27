@@ -1,0 +1,41 @@
+{
+  "norm_params": {
+    "Air temperature [K]": {
+      "min": 295.3,
+      "max": 304.5
+    },
+    "Process temperature [K]": {
+      "min": 305.7,
+      "max": 313.8
+    },
+    "Rotational speed [rpm]": {
+      "min": 1168.0,
+      "max": 2886.0
+    },
+    "Torque [Nm]": {
+      "min": 3.8,
+      "max": 76.6
+    },
+    "Tool wear [min]": {
+      "min": 0.0,
+      "max": 253.0
+    }
+  },
+  "class_weights": {
+    "w_pos": 28.52029520295203,
+    "w_neg": 1.0,
+    "n_positive": 271,
+    "n_negative": 7729,
+    "n_total": 8000
+  },
+  "feature_names": [
+    "Air temperature [K]",
+    "Process temperature [K]",
+    "Rotational speed [rpm]",
+    "Torque [Nm]",
+    "Tool wear [min]",
+    "Type_M",
+    "Type_H"
+  ],
+  "target_name": "Machine failure"
+}
