@@ -23,6 +23,7 @@ venv.bak/
 .ipynb_checkpoints/
 *.ipynb
 !notebooks/01_data_preparation.ipynb
+!notebooks/03_baseline_comparison.ipynb
 
 # --- Distribution / packaging ---
 dist/

@@ -1,0 +1,5 @@
+split,method,rows,accuracy,precision,recall,f1_score,specificity,tp,tn,fp,fn,predicted_positives,roc_auc
+validation,Fixed alarm baseline,800,0.9875,0.7429,0.963,0.8387,0.9884,26,764,9,1,35,N/A
+validation,Step 3 ANN,800,0.8838,0.2105,0.8889,0.3404,0.8836,24,683,90,3,114,0.9547
+test,Fixed alarm baseline,2000,0.9845,0.7284,0.8676,0.7919,0.9886,59,1910,22,9,81,N/A
+test,Step 3 ANN,2000,0.8815,0.2116,0.9118,0.3435,0.8804,62,1701,231,6,293,0.9581
