@@ -1,0 +1,126 @@
+{
+  "test_set_size": 2000,
+  "true_failures_in_test_set": 68,
+  "ann_metrics": {
+    "tp": 62,
+    "tn": 1701,
+    "fp": 231,
+    "fn": 6,
+    "accuracy": 0.8815,
+    "precision": 0.2116,
+    "recall": 0.9118,
+    "specificity": 0.8804,
+    "f1_score": 0.3435,
+    "roc_auc": 0.9581
+  },
+  "baseline_metrics": {
+    "tp": 59,
+    "tn": 1910,
+    "fp": 22,
+    "fn": 9,
+    "accuracy": 0.9845,
+    "precision": 0.7284,
+    "recall": 0.8676,
+    "specificity": 0.9886,
+    "f1_score": 0.7919,
+    "roc_auc": 0.9281
+  },
+  "hybrid_fuzzy_analysis": {
+    "severity_summary": {
+      "min": 15.53,
+      "max": 84.47,
+      "mean": 30.51,
+      "std": 21.54,
+      "p25": 15.53,
+      "median": 17.01,
+      "p75": 41.5
+    },
+    "priority_counts": {
+      "LOW": 1361,
+      "MEDIUM": 372,
+      "HIGH": 125,
+      "URGENT": 142
+    },
+    "priority_percentages": {
+      "LOW": 68.05,
+      "MEDIUM": 18.6,
+      "HIGH": 6.25,
+      "URGENT": 7.1
+    },
+    "priority_vs_ground_truth": {
+      "LOW": {
+        "y_0_healthy": 1360,
+        "y_1_failure": 1
+      },
+      "MEDIUM": {
+        "y_0_healthy": 358,
+        "y_1_failure": 14
+      },
+      "HIGH": {
+        "y_0_healthy": 108,
+        "y_1_failure": 17
+      },
+      "URGENT": {
+        "y_0_healthy": 106,
+        "y_1_failure": 36
+      }
+    },
+    "rule_firing_statistics": {
+      "R1": {
+        "times_fired": 1169,
+        "fire_percentage": 58.45,
+        "avg_strength_when_fired": 0.7672
+      },
+      "R2": {
+        "times_fired": 918,
+        "fire_percentage": 45.9,
+        "avg_strength_when_fired": 0.4945
+      },
+      "R3": {
+        "times_fired": 531,
+        "fire_percentage": 26.55,
+        "avg_strength_when_fired": 0.494
+      },
+      "R4": {
+        "times_fired": 160,
+        "fire_percentage": 8.0,
+        "avg_strength_when_fired": 0.42
+      },
+      "R5": {
+        "times_fired": 172,
+        "fire_percentage": 8.6,
+        "avg_strength_when_fired": 0.2696
+      },
+      "R6": {
+        "times_fired": 216,
+        "fire_percentage": 10.8,
+        "avg_strength_when_fired": 0.4208
+      },
+      "R7": {
+        "times_fired": 135,
+        "fire_percentage": 6.75,
+        "avg_strength_when_fired": 0.6326
+      },
+      "R8": {
+        "times_fired": 139,
+        "fire_percentage": 6.95,
+        "avg_strength_when_fired": 0.4209
+      },
+      "R9": {
+        "times_fired": 157,
+        "fire_percentage": 7.85,
+        "avg_strength_when_fired": 0.5789
+      },
+      "R10": {
+        "times_fired": 185,
+        "fire_percentage": 9.25,
+        "avg_strength_when_fired": 0.4531
+      },
+      "R11": {
+        "times_fired": 122,
+        "fire_percentage": 6.1,
+        "avg_strength_when_fired": 0.2296
+      }
+    }
+  }
+}

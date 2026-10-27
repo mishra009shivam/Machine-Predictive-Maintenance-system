@@ -9,8 +9,9 @@ This module encodes the failure-generation rules published by Matzka (2020),
 which are the SAME rules used to generate the Machine failure labels in the
 AI4I 2020 dataset.
 
-This is NOT an independent industrial benchmark.
-This is NOT a threshold system derived from real machine measurements.
+The crisp rules reproduce or approximate the failure-generation logic associated
+with the AI4I 2020 dataset. Their results are not an independent validation of
+industrial failure thresholds or evidence of performance on real factory data.
 
 Its purpose is:
   1. To establish what rigid, threshold-based classification looks like.

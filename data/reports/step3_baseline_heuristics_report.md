@@ -5,6 +5,10 @@
 **Target Dataset:** UCI AI4I 2020 Predictive Maintenance Dataset (UCI Repository ID: 601)  
 **Evaluation Set:** Held-out Stratified Test Partition ($N = 2,000$ samples, $68$ failures, `data/processed/X_test.npy`, `data/processed/y_test.npy`)  
 
+> **Academic Integrity Statement:**<br>
+> **"The crisp rules reproduce or approximate the failure-generation logic associated with the AI4I 2020 dataset. Their results are not an independent validation of industrial failure thresholds or evidence of performance on real factory data."**<br>
+> The four crisp failure modes (HDF, PWF, TWF, OSF) implemented in `src/baseline.py` reproduce the synthetic label-generation formulas published by Matzka (2020). This milestone establishes a non-soft-computing reference benchmark to demonstrate the boundaries of rigid threshold logic and quantify what subsequent soft-computing modules (ANN and Mamdani Fuzzy Inference) must learn without being provided explicit rules.
+
 ---
 
 ## 1. Project Objective and the Role of a Non-Soft-Computing Baseline
@@ -48,14 +52,18 @@ The classifier is completely non-soft-computing:
 
 ## 3. Threshold Traceability Matrix
 
-The baseline failure-detection rules encode the physical threshold mechanisms described by Matzka (2020) for the AI4I 2020 dataset.
+The baseline failure-detection rules in `src/baseline.py` encode the failure-generation mechanisms described by Matzka (2020) for the AI4I 2020 dataset.
 
-| Failure Mode | Mathematical Condition | Input Features & Physical Units | Threshold Limit(s) | Source & Justification | Known Limitations & Assumptions |
+> **Crucial Clarification on Rule Origins:**<br>
+> **"The crisp rules reproduce or approximate the failure-generation logic associated with the AI4I 2020 dataset. Their results are not an independent validation of industrial failure thresholds or evidence of performance on real factory data."**<br>
+> Each crisp rule listed below (HDF, PWF, TWF, OSF) was reverse-engineered from or matched to the generative labeling logic used to construct the synthetic AI4I 2020 dataset. They are not independent empirical thresholds validated on real production equipment.
+
+| Failure Mode | Mathematical Condition | Input Features & Physical Units | Threshold Limit(s) | Source & Synthetic Generation Justification | Known Limitations & Assumptions |
 |---|---|---|---|---|---|
-| **Heat Dissipation Failure (HDF)** | $(T_{\text{process}} - T_{\text{air}}) < 8.6\text{ K}$ $\land$ $\omega_{\text{rot}} < 1380\text{ rpm}$ | - $T_{\text{air}}$: Air temperature $[\text{K}]$<br>- $T_{\text{process}}$: Process temperature $[\text{K}]$<br>- $\omega_{\text{rot}}$: Spindle rotational speed $[\text{rpm}]$ | $\Delta T < 8.6\text{ K}$<br>$\text{Speed} < 1380\text{ rpm}$ | Matzka (2020). Models insufficient convective cooling when temperature difference is minimal and fan/spindle air circulation is low. | Assumes sharp step-function cutoff. Does not account for thermal inertia, transient load changes, or measurement noise around $8.6\text{ K}$. |
-| **Power Failure (PWF)** | $P < 3500\text{ W} \lor P > 9000\text{ W}$<br>where $P = \tau \times \left(\omega_{\text{rot}} \times \frac{2\pi}{60}\right)$ | - $\tau$: Spindle torque $[\text{Nm}]$<br>- $\omega_{\text{rot}}$: Spindle rotational speed $[\text{rpm}]$ | $P_{\text{min}} = 3500.0\text{ W}$<br>$P_{\text{max}} = 9000.0\text{ W}$ | Matzka (2020). Power required for machining. $P < 3500\text{ W}$ indicates drive slipping or no-load fault; $P > 9000\text{ W}$ indicates severe mechanical overload. | Calculates instantaneous electric/mechanical power. Ignores motor efficiency curves, acceleration power spikes, and power factor variation. |
-| **Tool Wear Failure (TWF)** | $t_{\text{wear}} \ge 220\text{ min}$ | - $t_{\text{wear}}$: Cumulative tool wear time $[\text{min}]$ | $t_{\text{threshold}} = 220\text{ min}$ | Matzka (2020). Represents cutting tool flank/crater wear reaching maximum allowable operational endurance. | Deterministic approximation of a stochastic phenomenon. See Section 4 for detailed analysis. |
-| **Overstrain Failure (OSF)** | $(t_{\text{wear}} \times \tau) > \text{Threshold}_{\text{Type}}$ | - $t_{\text{wear}}$: Tool wear $[\text{min}]$<br>- $\tau$: Spindle torque $[\text{Nm}]$<br>- Product Quality Type ($\text{L}, \text{M}, \text{H}$) | Type L: $11,000\text{ min}\cdot\text{Nm}$<br>Type M: $12,000\text{ min}\cdot\text{Nm}$<br>Type H: $13,000\text{ min}\cdot\text{Nm}$ | Matzka (2020). Models mechanical overstrain as product of tool wear and applied torque. Higher-quality variants tolerate higher stress. | Product type variants assumed to have perfectly uniform material limits with zero fatigue variability across batches. |
+| **Heat Dissipation Failure (HDF)** | $(T_{\text{process}} - T_{\text{air}}) < 8.6\text{ K}$ $\land$ $\omega_{\text{rot}} < 1380\text{ rpm}$ | - $T_{\text{air}}$: Air temperature $[\text{K}]$<br>- $T_{\text{process}}$: Process temperature $[\text{K}]$<br>- $\omega_{\text{rot}}$: Spindle rotational speed $[\text{rpm}]$ | $\Delta T < 8.6\text{ K}$<br>$\text{Speed} < 1380\text{ rpm}$ | Matzka (2020). Reproduces the synthetic data-generator rule used to assign the `HDF` failure flag in AI4I 2020. | Assumes sharp step-function cutoff. Does not account for thermal inertia, transient load changes, or measurement noise around $8.6\text{ K}$. |
+| **Power Failure (PWF)** | $P < 3500\text{ W} \lor P > 9000\text{ W}$<br>where $P = \tau \times \left(\omega_{\text{rot}} \times \frac{2\pi}{60}\right)$ | - $\tau$: Spindle torque $[\text{Nm}]$<br>- $\omega_{\text{rot}}$: Spindle rotational speed $[\text{rpm}]$ | $P_{\text{min}} = 3500.0\text{ W}$<br>$P_{\text{max}} = 9000.0\text{ W}$ | Matzka (2020). Reproduces the synthetic label-generation power boundary used in AI4I 2020. | Calculates instantaneous electric/mechanical power. Ignores motor efficiency curves, acceleration power spikes, and power factor variation. |
+| **Tool Wear Failure (TWF)** | $t_{\text{wear}} \ge 220\text{ min}$ | - $t_{\text{wear}}$: Cumulative tool wear time $[\text{min}]$ | $t_{\text{threshold}} = 220\text{ min}$ | Matzka (2020). Deterministic midpoint approximation of the dataset's stochastic $[200, 240]\text{ min}$ failure window. | Deterministic approximation of a stochastic phenomenon. Misses wear failures $<220\text{ min}$ and flags false alarms $>220\text{ min}$. See Section 4. |
+| **Overstrain Failure (OSF)** | $(t_{\text{wear}} \times \tau) > \text{Threshold}_{\text{Type}}$ | - $t_{\text{wear}}$: Tool wear $[\text{min}]$<br>- $\tau$: Spindle torque $[\text{Nm}]$<br>- Product Quality Type ($\text{L}, \text{M}, \text{H}$) | Type L: $11,000\text{ min}\cdot\text{Nm}$<br>Type M: $12,000\text{ min}\cdot\text{Nm}$<br>Type H: $13,000\text{ min}\cdot\text{Nm}$ | Matzka (2020). Reproduces the synthetic product-type-dependent overstrain formulas defined by the data generator. | Assumes uniform material limits with zero fatigue variability across batches. |
 
 ---
 
@@ -153,17 +161,33 @@ Despite a seemingly impressive accuracy of $96.60\%$, such a classifier has a **
 
 ## 9. Academic Integrity: Data-Generation Equations vs. Industrial Heuristics
 
-An essential distinction must be formally recognized regarding the nature of `src/baseline.py`:
+An essential distinction must be formally recognized regarding the nature and origin of `src/baseline.py`:
 
-### 9.1 The Baseline Reflects Data-Generating Equations
-The crisp baseline achieves a high F1-score ($0.7919$) and accuracy ($98.45\%$) primarily because **it directly implements the mathematical rules Matzka (2020) used to create the failure labels in the dataset**.
-- In statistical terms, the baseline acts as an **oracle classifier** that shares the exact structural priors of the synthetic generator.
+> **Core Finding & Academic Honesty Statement:**<br>
+> **"The crisp rules reproduce or approximate the failure-generation logic associated with the AI4I 2020 dataset. Their results are not an independent validation of industrial failure thresholds or evidence of performance on real factory data."**
+
+### 9.1 Detailed Traceability: How Crisp Rules Reproduce AI4I 2020 Label Generation
+
+The baseline classifier achieves a high test-set F1-score ($0.7919$) and high accuracy ($98.45\%$) not through independent empirical generalization, but because its four modeled decision rules directly mirror the algorithmic formulas that Matzka (2020) programmed into the AI4I 2020 synthetic data generator:
+
+1. **Heat Dissipation Failure (HDF):**
+   - *Generator Rule:* Evaluates $\Delta T = (T_{\text{process}} - T_{\text{air}}) < 8.6\text{ K}$ and $\omega_{\text{rot}} < 1380\text{ rpm}$.
+   - *Label-Generation Logic:* The AI4I 2020 generator flags an HDF failure whenever this dual condition is met. The baseline rule copies this logic identically. It is not an independently validated thermodynamic limit for industrial CNC equipment.
+2. **Power Failure (PWF):**
+   - *Generator Rule:* Computes $P = \tau \times \left(\omega_{\text{rot}} \times \frac{2\pi}{60}\right)$, failing when $P < 3500\text{ W} \lor P > 9000\text{ W}$.
+   - *Label-Generation Logic:* In AI4I 2020, power is computed using this exact rotational mechanics formula, and binary PWF labels are assigned when power falls outside $[3500, 9000]\text{ W}$. The baseline reproduces this exact algebraic formula. It is not an empirical standard derived from diverse factory drives.
+3. **Tool Wear Failure (TWF):**
+   - *Generator Rule:* Stochastically triggered when tool wear time $t_{\text{wear}} \in [200, 240]\text{ minutes}$.
+   - *Label-Generation Logic:* In the AI4I 2020 dataset, TWF is stochastically assigned between $200$ and $240$ minutes. The deterministic baseline adopts $220\text{ min}$ (the interval midpoint) as an analytical approximation. It does not represent an independent industrial tool replacement criterion or Taylor tool-life curve.
+4. **Overstrain Failure (OSF):**
+   - *Generator Rule:* Evaluates $(t_{\text{wear}} \times \tau) > \text{Threshold}_{\text{Type}}$ ($11,000$ for L, $12,000$ for M, $13,000$ for H $\text{min}\cdot\text{Nm}$).
+   - *Label-Generation Logic:* The synthetic generator uses these exact stress thresholds for product variants L, M, and H. The baseline reproduces this exact decision boundary. It does not represent an independently measured fatigue or mechanical yield criterion tested on real manufacturing equipment.
+
+### 9.2 The Baseline as an Oracle Reference, Not an Industrial Benchmark
+- In statistical machine learning terms, the baseline acts as an **oracle classifier** that shares the structural priors of the synthetic label generator.
 - Its imperfect score ($F_1 = 0.7919$ rather than $1.0$) is driven entirely by the two failure mechanisms that crisp static rules cannot capture: the stochastic TWF window ($[200, 240]\text{ min}$) and unmodelled stochastic RNF ($0.1\%$).
-
-### 9.2 It is Not an Independently Validated Industrial Heuristic
-- This baseline **must not** be presented to faculty or reviewers as an independent industrial thresholding system validated across physical milling equipment.
-- In real factory environments, exact physical threshold boundaries (such as exactly $8.6\text{ K}$ or exactly $11,000\text{ min}\cdot\text{Nm}$) are unknown, machine-specific, and contaminated by multi-source sensor degradation and ambient temperature swings.
-- The baseline's true academic purpose is to serve as a **theoretical upper-bound reference of crisp rule representation** against which learning algorithms (which must infer boundaries without being provided the formulas) can be evaluated.
+- In real manufacturing plants, explicit generative equations are unavailable: thresholds vary per machine tool, drift with ambient temperatures and lubricant degradation, and are obscured by multi-channel sensor noise.
+- The baseline's valid academic role in Step 3 is solely to demonstrate the limits of rigid step-function logic and serve as a control benchmark for the ANN and Fuzzy soft-computing stages.
 
 ---
 
