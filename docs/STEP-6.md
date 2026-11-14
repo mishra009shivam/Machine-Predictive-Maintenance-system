@@ -197,4 +197,3 @@ The overall Step 6 milestone status remains **IN PROGRESS** until team contribut
 - [x] **Manual UI Testing:** COMPLETE (All five manual UI test cases UI-01 through UI-05 verified as PASS).
 - [x] **Screenshot Evidence Archival:** COMPLETE (All 5 screenshots saved in [`docs/evidence/step6/`](evidence/step6/): `UI-01-input-form.png`, `UI-02-normal-prediction.png`, `UI-03-urgent-prediction.png`, `UI-04-rule-explainability.png`, and `UI-05-dark-mode.png`).
 - [x] **Rule Activation Verification:** COMPLETE (Fuzzy rules R9 and R10 confirmed in live UI rule container).
-- [ ] **Team Contribution Attribution:** PENDING (Section 6 awaiting individual member names and verified contribution breakdowns upon team sign-off).
