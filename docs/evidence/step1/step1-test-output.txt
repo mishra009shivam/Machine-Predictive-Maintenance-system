@@ -1,0 +1,45 @@
+=== STEP 1 UNIT TESTS ===
+test_s1_01_valid_normal_risky_high_wear_cases (tests.test_step1_contract.TestStep1Contract.test_s1_01_valid_normal_risky_high_wear_cases)
+S1-01: Valid normal, risky, and high-wear inputs pass and normalize types. ... ok
+test_s1_02_boundary_inputs_and_fuzzy_gap_note (tests.test_step1_contract.TestStep1Contract.test_s1_02_boundary_inputs_and_fuzzy_gap_note)
+S1-02: Lower, fuzzy-upper, and pipeline-BOUNDS upper boundaries pass. ... ok
+test_s1_03_missing_values_rejected (tests.test_step1_contract.TestStep1Contract.test_s1_03_missing_values_rejected)
+S1-03 (Expected Rejection): Missing/None/empty inputs raise ValueError. ... ok
+test_s1_04_invalid_types_rejected (tests.test_step1_contract.TestStep1Contract.test_s1_04_invalid_types_rejected)
+S1-04 (Expected Rejection): Wrong types (text, bool, int product_type) raise TypeError. ... ok
+test_s1_05_invalid_product_type_rejected (tests.test_step1_contract.TestStep1Contract.test_s1_05_invalid_product_type_rejected)
+S1-05 (Expected Rejection): Product types outside L/M/H raise ValueError. ... ok
+test_s1_06_out_of_range_inputs_rejected (tests.test_step1_contract.TestStep1Contract.test_s1_06_out_of_range_inputs_rejected)
+S1-06 (Expected Rejection): Values outside BOUNDS raise ValueError. ... ok
+test_s1_07_nan_and_inf_rejected (tests.test_step1_contract.TestStep1Contract.test_s1_07_nan_and_inf_rejected)
+S1-07 (Expected Rejection): NaN and +/-Inf raise ValueError. ... ok
+test_s1_08_starter_fixture_csv_validation (tests.test_step1_contract.TestStep1Contract.test_s1_08_starter_fixture_csv_validation)
+S1-08: Starter CSV fixture produces 5 valid passes, 6 expected rejections, 0 unexpected failures. ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.002s
+
+OK
+
+=== STEP 1 FIXTURE VALIDATOR ===
+=== STEP 1 FIXTURE VALIDATION REPORT ===
+Fixture: data\fixtures\step1_starter_sensors.csv
+
+[1] VALID INPUT CASES PASSED (5)
+  PASS  case_01_normal: Type=L, T_air=300.0 K, T_proc=310.0 K, Speed=1500.0 rpm, Torque=40.0 Nm, Wear=20.0 min
+  PASS  case_02_risky: Type=M, T_air=303.0 K, T_proc=313.0 K, Speed=1200.0 rpm, Torque=65.0 Nm, Wear=180.0 min
+  PASS  case_03_high_wear: Type=L, T_air=299.0 K, T_proc=309.0 K, Speed=1550.0 rpm, Torque=38.0 Nm, Wear=225.0 min
+  PASS  case_04_lower_boundary: Type=L, T_air=250.0 K, T_proc=250.0 K, Speed=0.0 rpm, Torque=0.0 Nm, Wear=0.0 min
+  PASS  case_05_fuzzy_upper_boundary: Type=M, T_air=304.0 K, T_proc=314.0 K, Speed=1200.0 rpm, Torque=80.0 Nm, Wear=260.0 min
+
+[2] EXPECTED INVALID INPUTS REJECTED (6)
+  REJECTED (EXPECTED)  case_06_missing_torque: [ValueError] Missing required numeric field 'torque_Nm'.
+  REJECTED (EXPECTED)  case_07_non_numeric_temp: [TypeError] Input 'air_temp_K' must be numeric (int/float), got string '300K'.
+  REJECTED (EXPECTED)  case_08_invalid_product_type: [ValueError] Invalid product_type 'X'. Must be one of ['H', 'L', 'M'].
+  REJECTED (EXPECTED)  case_09_out_of_range_speed: [ValueError] Input 'rotational_speed_rpm' value 5500.0 is outside allowed range [0.0, 5000.0].
+  REJECTED (EXPECTED)  case_10_nan_wear: [ValueError] Input 'tool_wear_min' must be finite (no NaN or Inf), got nan.
+  REJECTED (EXPECTED)  case_11_inf_torque: [ValueError] Input 'torque_Nm' must be finite (no NaN or Inf), got inf.
+
+[3] UNEXPECTED FAILURES (0)
+
+Summary: 5 valid passed, 6 expected invalid rejected, 0 unexpected failures.

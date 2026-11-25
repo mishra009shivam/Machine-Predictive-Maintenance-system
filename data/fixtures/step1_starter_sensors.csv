@@ -1,0 +1,13 @@
+case_id,product_type,air_temp_K,process_temp_K,rotational_speed_rpm,torque_Nm,tool_wear_min,expected_status,notes
+case_01_normal,L,300.0,310.0,1500.0,40.0,20.0,valid,Normal operating condition (low failure risk)
+case_02_risky,M,303.0,313.0,1200.0,65.0,180.0,valid,Elevated torque and wear (risky operating condition)
+case_03_high_wear,L,299.0,309.0,1550.0,38.0,225.0,valid,High tool wear inside TWF 200-240 min zone
+case_04_lower_boundary,L,250.0,250.0,0.0,0.0,0.0,valid,Minimum physical BOUNDS boundary
+case_05_fuzzy_upper_boundary,M,304.0,314.0,1200.0,80.0,260.0,valid,Maximum supported fuzzy-universe boundary (80 Nm / 260 min)
+case_06_missing_torque,L,300.0,310.0,1500.0,,20.0,expected_invalid,Missing torque value (empty cell)
+case_07_non_numeric_temp,L,300K,310.0,1500.0,40.0,20.0,expected_invalid,Invalid text unit suffix in numeric field
+case_08_invalid_product_type,X,300.0,310.0,1500.0,40.0,20.0,expected_invalid,Unsupported product_type outside L/M/H
+case_09_out_of_range_speed,L,300.0,310.0,5500.0,40.0,20.0,expected_invalid,Rotational speed exceeds 5000.0 rpm upper bound
+case_10_nan_wear,L,300.0,310.0,1500.0,40.0,nan,expected_invalid,Non-finite NaN value in tool_wear_min
+case_11_inf_torque,L,300.0,310.0,1500.0,inf,20.0,expected_invalid,Non-finite Inf value in torque_Nm
+
