@@ -1,0 +1,58 @@
+﻿=== PYTHON VERSION ===
+Python 3.14.7
+=== UNITTEST ===
+python : test_t07_missing_ann_model_file 
+(test_model_availability.TestModelAvailability.test_t07_missing_ann_model_file)
+At line:1 char:474
++ ... T ==="; $log += (python -m unittest discover -s tests -v 2>&1); $log  ...
++                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (test_t07_missin...ann_model_file):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+T07: Verify FileNotFoundError when ANN weights file is nonexistent. ... ok
+test_t07_missing_normalization_file (test_model_availability.TestModelAvailability.test_t07_missing_normalization_file)
+T07 Subtest: Verify FileNotFoundError when norm_params.json is nonexistent. ... ok
+test_t08_recovery_after_missing_model_test 
+(test_model_availability.TestModelAvailability.test_t08_recovery_after_missing_model_test)
+T08: Verify system recovery when pipeline is initialized with real model assets. ... ok
+test_t01_normal_prediction (test_prediction_pipeline.TestPredictionPipeline.test_t01_normal_prediction)
+T01: Verify prediction under nominal machine operating conditions. ... ok
+test_t02_lower_boundary_inputs (test_prediction_pipeline.TestPredictionPipeline.test_t02_lower_boundary_inputs)
+T02: Verify system stability at absolute physical lower boundary limits. ... ok
+test_t03_upper_boundary_inputs (test_prediction_pipeline.TestPredictionPipeline.test_t03_upper_boundary_inputs)
+T03: Verify system behavior at supported upper boundary limits. ... ok
+test_t04_out_of_range_inputs (test_prediction_pipeline.TestPredictionPipeline.test_t04_out_of_range_inputs)
+T04: Verify defensive ValueError exception when inputs exceed physical bounds. ... ok
+test_t05_invalid_text_in_numeric_fields 
+(test_prediction_pipeline.TestPredictionPipeline.test_t05_invalid_text_in_numeric_fields)
+T05: Verify defensive TypeError when non-numeric types are supplied. ... ok
+test_t06_missing_or_none_inputs (test_prediction_pipeline.TestPredictionPipeline.test_t06_missing_or_none_inputs)
+T06: Verify handling when required inputs are None or empty strings. ... ok
+test_t09_pipeline_consistency (test_prediction_pipeline.TestPredictionPipeline.test_t09_pipeline_consistency)
+T09: Verify repeatability and consistency across identical invocations. ... ok
+test_s1_01_valid_normal_risky_high_wear_cases 
+(test_step1_contract.TestStep1Contract.test_s1_01_valid_normal_risky_high_wear_cases)
+S1-01: Valid normal, risky, and high-wear inputs pass and normalize types. ... ok
+test_s1_02_boundary_inputs_and_fuzzy_gap_note 
+(test_step1_contract.TestStep1Contract.test_s1_02_boundary_inputs_and_fuzzy_gap_note)
+S1-02: Lower, fuzzy-upper, and pipeline-BOUNDS upper boundaries pass. ... ok
+test_s1_03_missing_values_rejected (test_step1_contract.TestStep1Contract.test_s1_03_missing_values_rejected)
+S1-03 (Expected Rejection): Missing/None/empty inputs raise ValueError. ... ok
+test_s1_04_invalid_types_rejected (test_step1_contract.TestStep1Contract.test_s1_04_invalid_types_rejected)
+S1-04 (Expected Rejection): Wrong types (text, bool, int product_type) raise TypeError. ... ok
+test_s1_05_invalid_product_type_rejected 
+(test_step1_contract.TestStep1Contract.test_s1_05_invalid_product_type_rejected)
+S1-05 (Expected Rejection): Product types outside L/M/H raise ValueError. ... ok
+test_s1_06_out_of_range_inputs_rejected (test_step1_contract.TestStep1Contract.test_s1_06_out_of_range_inputs_rejected)
+S1-06 (Expected Rejection): Values outside BOUNDS raise ValueError. ... ok
+test_s1_07_nan_and_inf_rejected (test_step1_contract.TestStep1Contract.test_s1_07_nan_and_inf_rejected)
+S1-07 (Expected Rejection): NaN and +/-Inf raise ValueError. ... ok
+test_s1_08_starter_fixture_csv_validation 
+(test_step1_contract.TestStep1Contract.test_s1_08_starter_fixture_csv_validation)
+S1-08: Starter CSV fixture produces 5 valid passes, 6 expected rejections, 0 unexpected failures. ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.045s
+
+OK
+=== PIP CHECK ===
